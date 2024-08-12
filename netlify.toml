@@ -1,0 +1,16 @@
+# [build] section configures how your site is built and deployed.
+[build] 
+  functions = "netlify/functions"  # Path to your Netlify functions directory
+  publish = "netlify/dist"
+
+# [redirects] section configures redirects and rewrites.
+[[redirects]]
+  from = "/*"  # All requests will be redirected
+  to = "/.netlify/functions/api/:splat"  # Redirect to the serverless function
+  status = 200  # Status code (200 for rewrite, 301 or 302 for redirects)
+  force = true  # Force the redirect even if the source file exists
+
+# [dev] section configures local development.
+[dev]
+  functions = "netlify/functions"  # Path to Netlify functions for local development
+  port = 8888  # Port for local development server

@@ -1,6 +1,6 @@
 require('dotenv').config()
 const express = require("express")
-const bcrypt = require("bcrypt")
+const bcrypt = require("bcryptjs")
 const bodyParser = require("body-parser")
 const cors = require("cors")
 const { initializeFirebaseApp, uploadData, getDocument, addUser } = require("./lib/firebase")
@@ -13,15 +13,15 @@ app.use(cors({
     origin: CLIENT_ORIGIN
 }))
 
+const router = express.Router()
+
 initializeFirebaseApp()
 
-const port = process.env.PORT || 3000
-
-app.get('/', (req, res) => {
+router.get('/', (req, res) => {
     res.send("Homepage")
 })
 
-app.post('/signup', async (req, res) => {
+router.post('/signup', async (req, res) => {
     try {
         const {username, password} = req.body
         const saltRounds = 2
@@ -44,7 +44,7 @@ app.post('/signup', async (req, res) => {
     }
 })
 
-app.put('/login', async (req, res) => {
+router.put('/login', async (req, res) => {
     try{
         const {username: givenUsername, password: givenPassword} = req.body
         const document = await getDocument(givenUsername)
@@ -71,7 +71,7 @@ app.put('/login', async (req, res) => {
     }
 })
 
-app.put('/save', async (req, res) => {
+router.put('/save', async (req, res) => {
     try {
         const {username, assignments, iv, token} = req.body
         checkCredentials(username, iv, token)
@@ -104,7 +104,7 @@ app.put('/save', async (req, res) => {
 
 })
 
-app.put('/data', async (req, res) => {
+router.put('/data', async (req, res) => {
     try {
         const {username, iv, token} = req.body
         checkCredentials(username, iv, token)
@@ -141,7 +141,7 @@ app.put('/data', async (req, res) => {
     }
 })
 
-app.put('/refresh_token', (req, res) => {
+router.put('/refresh_token', (req, res) => {
     try {
         const {username: givenUsername, iv: givenIv, token: givenToken} = req.body
         checkCredentials(givenUsername, givenIv, givenToken)
@@ -172,4 +172,7 @@ app.put('/refresh_token', (req, res) => {
     }
 })
 
-app.listen(port)
+app.use('/', router)
+
+module.exports = app
+
